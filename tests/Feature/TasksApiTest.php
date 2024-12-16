@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\assertAuthenticated;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertModelMissing;
 use function Pest\Laravel\deleteJson;
@@ -17,7 +16,10 @@ use function Pest\Laravel\postJson;
 uses(WithFaker::class);
 
 test('GET /api/tasks 200', function () {
-    $tasks = Task::factory()->count(3)->create();
+    $user = User::factory()->create();
+    actingAs($user);
+
+    $tasks = Task::factory()->author($user)->count(3)->create();
 
     getJson('/api/tasks')
         ->assertStatus(200)
@@ -25,7 +27,10 @@ test('GET /api/tasks 200', function () {
 });
 
 test('GET /api/tasks/{task} 200', function () {
-    $task = Task::factory()->create();
+    $user = User::factory()->create();
+    actingAs($user);
+
+    $task = Task::factory()->author($user)->create();
 
     getJson("/api/tasks/$task->id")
         ->assertStatus(200)
@@ -33,19 +38,17 @@ test('GET /api/tasks/{task} 200', function () {
 });
 
 test('POST /api/tasks 201', function () {
-    $author = User::factory()->create(); // TODO change to current user (auth->user)
+    $user = User::factory()->create();
+    actingAs($user);
 
     $data = [
         'title' => $this->faker->sentence(4),
         'description_content' => $this->faker->randomHtml(3),
         'status' => $this->faker->randomElement(TaskStatusEnum::cases()),
-        'author_id' => $author->id,
+        'author_id' => $user->id,
         'assignee_id' => User::factory()->create()->id,
         'deadline_at' => Carbon::now()->addDays(3),
     ];
-
-    actingAs($author);
-    assertAuthenticated();
 
     $id = postJson('/api/tasks', $data)
         ->assertStatus(201)
@@ -57,9 +60,8 @@ test('POST /api/tasks 201', function () {
 });
 
 test('PATCH /api/tasks/{task} 200', function () {
-    $author = User::factory()->create(); // TODO change to current user (auth->user)
-    actingAs($author);
-    assertAuthenticated();
+    $user = User::factory()->create();
+    actingAs($user);
 
     $oldValues = [
         'title' => 'Old task title',
@@ -67,7 +69,7 @@ test('PATCH /api/tasks/{task} 200', function () {
         'deadline_at' => null,
     ];
 
-    $task = Task::factory()->create(['author_id' => $author->id, ...$oldValues]);
+    $task = Task::factory()->create(['author_id' => $user->id, ...$oldValues]);
 
     $data = [
         'title' => 'New task title 123',
@@ -86,7 +88,10 @@ test('PATCH /api/tasks/{task} 200', function () {
 });
 
 test('DELETE /api/tasks/{task} 204', function () {
-    $task = Task::factory()->create();
+    $user = User::factory()->create();
+    actingAs($user);
+
+    $task = Task::factory()->author($user)->create();
 
     deleteJson("/api/tasks/$task->id")
         ->assertStatus(204);

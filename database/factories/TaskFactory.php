@@ -29,4 +29,11 @@ class TaskFactory extends Factory
             'deadline_at' => $this->faker->boolean() ? Carbon::now()->addDays($this->faker->numberBetween(1, 14))->startOfDay() : null,
         ];
     }
+
+    public function author(User $user): static
+    {
+        return $this->state([
+            'author_id' => $user->id,
+        ]);
+    }
 }

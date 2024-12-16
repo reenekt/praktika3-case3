@@ -13,7 +13,7 @@ class TaskPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $this->currentUserIsAuthorOrSuperuser($user);
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
-        return $this->currentUserIsAuthorOrSuperuser($user);
+        return $this->currentUserIsAuthorOrSuperuser($user, $task);
     }
 
     /**
@@ -29,7 +29,7 @@ class TaskPolicy
      */
     public function create(User $user): bool
     {
-        return $this->currentUserIsAuthorOrSuperuser($user);
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
-        return $this->currentUserIsAuthorOrSuperuser($user);
+        return $this->currentUserIsAuthorOrSuperuser($user, $task);
     }
 
     /**
@@ -45,7 +45,7 @@ class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
-        return $this->currentUserIsAuthorOrSuperuser($user);
+        return $this->currentUserIsAuthorOrSuperuser($user, $task);
     }
 
     /**
@@ -53,7 +53,7 @@ class TaskPolicy
      */
     public function restore(User $user, Task $task): bool
     {
-        return $this->currentUserIsAuthorOrSuperuser($user);
+        return $this->currentUserIsAuthorOrSuperuser($user, $task);
     }
 
     /**
@@ -64,13 +64,13 @@ class TaskPolicy
         return $this->currentUserIsSuperuser($user);
     }
 
-    private function currentUserIsAuthorOrSuperuser(User $user): bool
+    private function currentUserIsAuthorOrSuperuser(User $user, Task $task): bool
     {
-        return true; // TODO complete this logic after auth
+        return $task->author_id === $user->id || $user->is_superuser;
     }
 
     private function currentUserIsSuperuser(User $user): bool
     {
-        return true; // TODO complete this logic after auth
+        return $user->is_superuser;
     }
 }
