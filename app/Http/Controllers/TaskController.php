@@ -23,6 +23,14 @@ class TaskController extends Controller
     }
 
     /**
+     * Display a listing of the resource related to current user.
+     */
+    public function indexMy(): AnonymousResourceCollection
+    {
+        return TaskResource::collection(Task::query()->where('assignee_id', auth()->id())->paginate(20));
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreTaskRequest $request, CreateTaskAction $action): TaskResource
@@ -35,7 +43,7 @@ class TaskController extends Controller
      */
     public function show(Task $task): TaskResource
     {
-        return TaskResource::make($task);
+        return TaskResource::make($task->loadMissing(['author', 'assignee']));
     }
 
     /**

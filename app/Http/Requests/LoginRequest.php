@@ -25,11 +25,17 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'email'],
             'password' => ['required'],
+            'remember' => ['sometimes', 'boolean'],
         ];
     }
 
     public function getCredentials(): array
     {
         return $this->safe()->only(['email', 'password']);
+    }
+
+    public function getRemember(): bool
+    {
+        return $this->safe()->input('remember', false);
     }
 }

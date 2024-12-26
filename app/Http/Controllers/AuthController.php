@@ -12,7 +12,7 @@ class AuthController extends Controller
 {
     public function login(LoginRequest $request): UserResource|RedirectResponse
     {
-        if (auth()->attempt($request->getCredentials())) {
+        if (auth()->attempt($request->getCredentials(), $request->getRemember())) {
             $request->session()->regenerate();
 
             if (!$request->expectsJson()) {

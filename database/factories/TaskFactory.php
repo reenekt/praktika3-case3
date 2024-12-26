@@ -22,7 +22,7 @@ class TaskFactory extends Factory
     {
         return [
             'title' => $this->faker->sentence(4),
-            'description_content' => $this->faker->randomHtml(3),
+            'description_content' => $this->makeDescriptionContentFieldValue(),
             'status' => $this->faker->randomElement(TaskStatusEnum::cases()),
             'author_id' => User::factory(),
             'assignee_id' => $this->faker->boolean() ? User::factory() : null,
@@ -35,5 +35,12 @@ class TaskFactory extends Factory
         return $this->state([
             'author_id' => $user->id,
         ]);
+    }
+
+    protected function makeDescriptionContentFieldValue(): string
+    {
+        return collect($this->faker->paragraphs(rand(1, 5)))
+            ->map(fn($p) => "<p>{$p}</p>")
+            ->implode('');
     }
 }
